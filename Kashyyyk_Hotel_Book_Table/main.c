@@ -4,8 +4,8 @@
 #include <string.h>
 #include <time.h>
 
-int table_booking(char booking_data[10][50], char table_data[2][7]);
-int booking_valid(char *booking_data[10][50]);
+int table_booking(char booking_data[10][50], char td[2][7]);
+int booking_valid(char booking_data[10][50]);
 char (*check_in())[50];
 
 // have a main subprogram that co-ordinates every other sub-program - this returns which tables booked by who
@@ -17,7 +17,8 @@ char (*check_in())[50];
 // update which tables are free and when
 
 int main(void) {
-    char booking_data[10][50] = {"gabriel", "ben", "george"};
+    setbuf(stdout,NULL);
+    static char booking_data[10][50];
     char table_data [2][7];
     // ^^ these variables have to be established globally ^^
     check_in();
@@ -25,13 +26,12 @@ int main(void) {
     return 0;
 }
 
-int table_booking(char bt[10][50], char table_data[2][7]) {
+int table_booking(char bt[10][50], char td[2][7]) {
     char would_you_like_to_book = ' ';
     int can_you_book, valid_input = 0;
 
     while (valid_input == 0) {
         printf("Would you like to book a table? (Y/N)\n");
-        fflush(stdin);
         scanf("%c", &would_you_like_to_book);
 
         if (would_you_like_to_book == 'Y') {
@@ -47,19 +47,19 @@ int table_booking(char bt[10][50], char table_data[2][7]) {
             valid_input = 0;
         }
     }
+    return 0;
 }
 
-int booking_valid(char *booking_data[10][50]) {
+int booking_valid(char bd[10][50]) {
     char booking_ID[100];
     int valid, repeat, ID_found;
     printf("Please enter your booking ID: ");
-    fflush(stdin);
-    scanf("%c", &booking_ID);
+    scanf("%s", &booking_ID);
 
     while (valid == 0) {
-        if (strcmp(booking_data[0][repeat], booking_ID) == 0) {
+        if (strcmp(bd[repeat], booking_ID) == 0) {
             repeat = ID_found;
-            valid == 1;
+            valid = 1;
         }
         else {
             repeat +=1;
@@ -74,7 +74,7 @@ int booking_valid(char *booking_data[10][50]) {
 
 char (*check_in())[50] {
     int children = 0, adults = 0, length = 0, room_number = 0;
-    char first_name[50], surname[50], dob[9], board_type[3], newspaper[2];
+    char first_name[50], surname[50], dob[9], board_type[3], newspaper;
     char booking_id[50], random_str[50];
 
     srand(time(NULL));
@@ -123,20 +123,9 @@ char (*check_in())[50] {
     sprintf(booking_data[4], "%d", adults);
     strcpy(booking_data[5], board_type);
     sprintf(booking_data[6], "%d", length);
-    strcpy(booking_data[7], newspaper);
+    sprintf(booking_data[7], "%c", newspaper);
     sprintf(booking_data[8], "%d", room_number);
     strcpy(booking_data[9], booking_id);
-
-    printf("First name: %s\n", booking_data[0]);
-    printf("Surname: %s\n", booking_data[1]);
-    printf("DOB: %s\n", booking_data[2]);
-    printf("Children: %s\n", booking_data[3]);
-    printf("Adults: %s\n", booking_data[4]);
-    printf("Board type: %s\n", booking_data[5]);
-    printf("Length: %s\n", booking_data[6]);
-    printf("Newspaper: %s\n", booking_data[7]);
-    printf("Room number: %s\n", booking_data[8]);
-    printf("Booking ID: %s\n", booking_data[9]);
 
     return booking_data;
 }
