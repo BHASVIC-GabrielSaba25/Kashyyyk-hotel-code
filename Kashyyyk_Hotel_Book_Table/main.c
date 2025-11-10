@@ -3,140 +3,147 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+char g_firstnames[10][50];
+char g_surnames[10][50];
+char g_dobs[10][50];
+char g_children[10][50];
+char g_adults[10][50];
+char g_board_type[10][50];
+char g_length_of_stay[10][50];
+char g_newspaper[10][50];
+char g_room_number[10][50];
+char g_booking_id[10][50];
+int endor_table_data[2][7] = {
+    0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0
+};
+int tatooine_table_data[2][7] = {
+    0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0
+};
+int naboo_table_data[2][7] = {
+    0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0
+};
 
-int table_booking(char booking_data[10][50], char table_data[2][7]);
-int booking_valid(char *booking_data[10][50]);
-char (*check_in())[50];
-
-// have a main subprogram that co-ordinates every other sub-program - this returns which tables booked by who
-// 2d array for each table displaying what times of the week they are free e.g Monday 7PM and Monday 9PM are diff items etc
-// first function to check if booking a table is possible (checks if has valid booking ID, if are staying FB/HB, if there is a free table for the number of people they have)
-// display free booking times of the tables
-// second function to allow guest to book a table at a specific time
-// tell user they have successfully booked the table
-// update which tables are free and when
+int table_booking(char g_firstnames[10][50],char g_surnames[10][50],char g_dobs[10][50],char g_children[10][50],char g_adults[10][50],char g_board_type[10][50],char g_length_of_stay[10][50],char g_newspaper[10][50],char g_room_number[10][50],char g_booking_id[10][50]);
+int booking_valid(char g_board_type[10][50],char g_booking_id[10][50]);
+void check_in();
 
 int main(void) {
-    char booking_data[10][50] = {"gabriel", "ben", "george"};
-    char table_data [2][7];
-    // ^^ these variables have to be established globally ^^
+    setbuf(stdout,NULL);
+    printf("Hello, World!\n");
+
+
     check_in();
-    table_booking(booking_data, table_data);
+    table_booking(g_firstnames, g_surnames, g_dobs,g_children, g_adults, g_board_type, g_length_of_stay, g_newspaper,g_room_number, g_booking_id);
     return 0;
 }
 
-int table_booking(char bt[10][50], char table_data[2][7]) {
-    char would_you_like_to_book = ' ';
-    int can_you_book, valid_input = 0;
+int table_booking(char g_firstnames[10][50],char g_surnames[10][50],char g_dobs[10][50],char g_children[10][50],char g_adults[10][50],char g_board_type[10][50],char g_length_of_stay[10][50],char g_newspaper[10][50],char g_room_number[10][50],char g_booking_id[10][50]) {
+    char would_you_like_to_book;
+    int can_you_book = 0, valid_input = 0;
 
     while (valid_input == 0) {
         printf("Would you like to book a table? (Y/N)\n");
-        fflush(stdin);
-        scanf("%c", &would_you_like_to_book);
+        scanf(" %c", &would_you_like_to_book);
 
-        if (would_you_like_to_book == 'Y') {
-            can_you_book = booking_valid(bt);
+        if (would_you_like_to_book == 'Y' || would_you_like_to_book == 'y') {
+            can_you_book = booking_valid(g_booking_id, g_board_type);
             valid_input = 1;
         }
-        else if (would_you_like_to_book == 'N') {
-            printf("returns to menu");
+        else if (would_you_like_to_book == 'N' || would_you_like_to_book == 'n') {
+            printf("Returns to menu\n");
             valid_input = 1;
         }
         else {
-            printf("invalid input please try again\n");
-            valid_input = 0;
+            printf("Invalid input, please try again.\n");
         }
     }
+
+    if (can_you_book == 1) {
+
+    }
+
+    return 0;
 }
 
-int booking_valid(char *booking_data[10][50]) {
+int booking_valid(char g_booking_id[10][50], char g_board_type[10][50]) {
     char booking_ID[100];
-    int valid, repeat, ID_found;
+    int valid = 0, repeat = 0, ID_found = -1;
+
     printf("Please enter your booking ID: ");
-    fflush(stdin);
-    scanf("%c", &booking_ID);
+    scanf("%s", booking_ID);
 
     while (valid == 0) {
-        if (strcmp(booking_data[0][repeat], booking_ID) == 0) {
-            repeat = ID_found;
-            valid == 1;
+        if (strcmp(g_booking_id[repeat], booking_ID) == 0) {
+            ID_found = repeat;
+            valid = 1;
         }
         else {
-            repeat +=1;
-            valid = 0;
-            if (repeat > 49) {
+            repeat++;
+            if (repeat >= 10) {
                 valid = 2;
             }
         }
     }
+
+    if (valid == 1)
+        printf("You're valid for a booking!\n");
+    else
+        printf("ID not found.\n");
+
     return valid;
 }
 
-char (*check_in())[50] {
+void check_in() {
     int children = 0, adults = 0, length = 0, room_number = 0;
-    char first_name[50], surname[50], dob[9], board_type[3], newspaper[2];
+    char first_name[50], surname[50], dob[9], board_type[3];
+    char newspaper;
     char booking_id[50], random_str[50];
 
     srand(time(NULL));
     int random_number = (rand() % 100) + 1;
 
-
-    printf("Enter first name:\n");
+    printf("Enter first name: ");
     scanf("%s", first_name);
-
-    printf("Enter surname:\n");
+    printf("Enter surname: ");
     scanf("%s", surname);
-
-    printf("Enter date of birth: DDMMYYYY\n");
+    printf("Enter date of birth (DDMMYYYY): ");
     scanf("%s", dob);
-
-    printf("Enter number of any children? (16 or below)\n");
+    printf("Enter number of children (16 or below): ");
     scanf("%d", &children);
-
-    printf("Enter number of adults (above 16):\n");
+    printf("Enter number of adults (above 16): ");
     scanf("%d", &adults);
-
-    printf("Enter board type (FB, HB, BB):\n");
+    printf("Enter board type (FB, HB, BB): ");
     scanf("%s", board_type);
-
-    printf("Enter length of stay (in days):\n");
+    printf("Enter length of stay (days): ");
     scanf("%d", &length);
-
-    printf("Would you like a daily newspaper? (Y or N)\n");
+    printf("Would you like a daily newspaper? (Y/N): ");
     scanf(" %c", &newspaper);
-
-    printf("There are 6 rooms.\nRooms 1 & 2 = £100\nRoom 3 = £85\nRooms 4 & 5 = £75\nRoom 6 = £50\nEnter the room number:\n");
+     printf("There are 6 rooms.\nRooms 1 & 2 = £100\nRoom 3 = £85\nRooms 4 & 5 = £75\nRoom 6 = £50\nEnter the room number:\n");
     scanf("%d", &room_number);
 
     sprintf(random_str, "%d", random_number);
     strcpy(booking_id, surname);
     strcat(booking_id, random_str);
 
-    printf("%s", booking_id);
+    printf("Your booking ID: %s\n", booking_id);
 
-    static char booking_data[10][50];
+    int check_num = 0;
 
-    strcpy(booking_data[0], first_name);
-    strcpy(booking_data[1], surname);
-    strcpy(booking_data[2], dob);
-    sprintf(booking_data[3], "%d", children);
-    sprintf(booking_data[4], "%d", adults);
-    strcpy(booking_data[5], board_type);
-    sprintf(booking_data[6], "%d", length);
-    strcpy(booking_data[7], newspaper);
-    sprintf(booking_data[8], "%d", room_number);
-    strcpy(booking_data[9], booking_id);
+    while (g_firstnames[check_num][0] != 0) {
+        check_num +=1;
+    }
 
-    printf("First name: %s\n", booking_data[0]);
-    printf("Surname: %s\n", booking_data[1]);
-    printf("DOB: %s\n", booking_data[2]);
-    printf("Children: %s\n", booking_data[3]);
-    printf("Adults: %s\n", booking_data[4]);
-    printf("Board type: %s\n", booking_data[5]);
-    printf("Length: %s\n", booking_data[6]);
-    printf("Newspaper: %s\n", booking_data[7]);
-    printf("Room number: %s\n", booking_data[8]);
-    printf("Booking ID: %s\n", booking_data[9]);
-
-    return booking_data;
+    strcpy(g_firstnames[check_num], first_name);
+    strcpy(g_surnames[check_num], surname);
+    strcpy(g_dobs[check_num], dob);
+    sprintf(g_children[check_num], "%d", children);
+    sprintf(g_adults[check_num], "%d", adults);
+    strcpy(g_board_type[check_num], board_type);
+    sprintf(g_length_of_stay[check_num], "%d", length);
+    sprintf(g_newspaper[check_num], "%c", newspaper);
+    sprintf(g_room_number[check_num], "%d", room_number);
+    strcpy(g_booking_id[check_num], booking_id);
 }
