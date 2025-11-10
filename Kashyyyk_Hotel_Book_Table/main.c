@@ -13,6 +13,8 @@ char g_length_of_stay[10][50];
 char g_newspaper[10][50];
 char g_room_number[10][50];
 char g_booking_id[10][50];
+int g_tables_booked[10];
+
 int endor_table_data[2][7] = {
     0,0,0,0,0,0,0,
     0,0,0,0,0,0,0
@@ -27,7 +29,8 @@ int naboo_table_data[2][7] = {
 };
 
 int table_booking(char g_firstnames[10][50],char g_surnames[10][50],char g_dobs[10][50],char g_children[10][50],char g_adults[10][50],char g_board_type[10][50],char g_length_of_stay[10][50],char g_newspaper[10][50],char g_room_number[10][50],char g_booking_id[10][50]);
-int booking_valid(char g_board_type[10][50],char g_booking_id[10][50]);
+int booking_valid(char g_board_type[10][50],char g_booking_id[10][50], );
+void choose_table(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7], int g_tables_booked[10]);
 void check_in();
 
 int main(void) {
@@ -63,6 +66,7 @@ int table_booking(char g_firstnames[10][50],char g_surnames[10][50],char g_dobs[
 
     if (can_you_book == 1) {
 
+
     }
 
     return 0;
@@ -78,7 +82,11 @@ int booking_valid(char g_booking_id[10][50], char g_board_type[10][50]) {
     while (valid == 0) {
         if (strcmp(g_booking_id[repeat], booking_ID) == 0) {
             ID_found = repeat;
-            valid = 1;
+            if (strcmp(g_board_type[ID_found], "FB") == 0 || strcmp(g_board_type[ID_found], "HB") == 0)
+                valid = 1;
+            else {
+                valid = 3;
+            }
         }
         else {
             repeat++;
@@ -88,13 +96,24 @@ int booking_valid(char g_booking_id[10][50], char g_board_type[10][50]) {
         }
     }
 
-    if (valid == 1)
+    if (valid == 1) {
         printf("You're valid for a booking!\n");
-    else
+    }
+    else if (valid == 2) {
         printf("ID not found.\n");
+    }
+    else {
+        printf("Your Board Type is invalid (Only full board and half board can book a table).");
+        printf("Therefore you are unable to book a table.");
+    }
 
     return valid;
 }
+
+void choose_table(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7], int g_tables_booked[10]) {
+    printf("Which table would you like to book?")
+}
+
 
 void check_in() {
     int children = 0, adults = 0, length = 0, room_number = 0;
