@@ -15,22 +15,24 @@ char g_room_number[10][50];
 char g_booking_id[10][50];
 int g_tables_booked[10];
 
-int endor_table_data[2][7] = {
-    0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0
+char endor_table_data[2][7] = {
+    'x','-','-','-','-','-','-',
+    '-','-','-','-','-','-','-'
 };
-int tatooine_table_data[2][7] = {
-    0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0
+char tatooine_table_data[2][7] = {
+    '-','x','-','-','-','-','-',
+    '-','-','-','-','-','-','-'
 };
-int naboo_table_data[2][7] = {
-    0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0
+char naboo_table_data[2][7] = {
+    '-','-','x','-','-','-','-',
+    '-','-','-','-','-','-','-'
 };
 
-int table_booking(char g_firstnames[10][50],char g_surnames[10][50],char g_dobs[10][50],char g_children[10][50],char g_adults[10][50],char g_board_type[10][50],char g_length_of_stay[10][50],char g_newspaper[10][50],char g_room_number[10][50],char g_booking_id[10][50]);
-int booking_valid(char g_board_type[10][50],char g_booking_id[10][50], );
-void choose_table(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7], int g_tables_booked[10]);
+int table_booking(char g_children[10][50],char g_adults[10][50],char g_board_type[10][50],char g_booking_id[10][50], int g_tables_booked[10]);
+int booking_valid(char g_board_type[10][50],char g_booking_id[10][50]);
+int choose_and_book_table(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7]);
+void display_table_free(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7], char table_choice);
+int check_free_spot(char day[3], int time, char table_choice, char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7]);
 void check_in();
 
 int main(void) {
@@ -39,13 +41,13 @@ int main(void) {
 
 
     check_in();
-    table_booking(g_firstnames, g_surnames, g_dobs,g_children, g_adults, g_board_type, g_length_of_stay, g_newspaper,g_room_number, g_booking_id);
+    table_booking(g_children, g_adults, g_board_type, g_booking_id, g_tables_booked);
     return 0;
 }
 
-int table_booking(char g_firstnames[10][50],char g_surnames[10][50],char g_dobs[10][50],char g_children[10][50],char g_adults[10][50],char g_board_type[10][50],char g_length_of_stay[10][50],char g_newspaper[10][50],char g_room_number[10][50],char g_booking_id[10][50]) {
-    char would_you_like_to_book;
-    int can_you_book = 0, valid_input = 0;
+int table_booking(char g_children[10][50],char g_adults[10][50],char g_board_type[10][50],char g_booking_id[10][50], int g_tables_booked[10]) {
+    char would_you_like_to_book, booking_id[100];
+    int can_you_book = 0, valid_input = 0, booked, id_place = 0, valid = 0;
 
     while (valid_input == 0) {
         printf("Would you like to book a table? (Y/N)\n");
@@ -65,8 +67,32 @@ int table_booking(char g_firstnames[10][50],char g_surnames[10][50],char g_dobs[
     }
 
     if (can_you_book == 1) {
+        booked = choose_and_book_table(endor_table_data, tatooine_table_data, naboo_table_data);
+    }
+    else {
+        printf("return to menu");
+    }
 
+    if (booked == 1) {
+        printf("Please enter your booking ID once more to confirm your reservation: ");
+        scanf("%s", &booking_id);
+        while (valid == 0) {
+            if (strcmp(g_booking_id[id_place], booking_id)) {
+                valid = 1;
+            }
+            else {
+                id_place ++;
+            }
+        }
 
+        g_tables_booked[id_place] +=1;
+
+        printf("Your table is successfully booked.");
+    }
+    else {
+        printf("I am very sorry\n");
+        printf("The table was either full or your booking was unsuccessful\n");
+        printf("Please try again");
     }
 
     return 0;
@@ -110,10 +136,532 @@ int booking_valid(char g_booking_id[10][50], char g_board_type[10][50]) {
     return valid;
 }
 
-void choose_table(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7], int g_tables_booked[10]) {
-    printf("Which table would you like to book?")
+int choose_and_book_table(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7]) {
+    char table_choice, day[4];
+    int time, table_booked;
+
+    printf("Which table would you like to book? (E = endor, T = tatooine, N = naboo)\n");
+    scanf("%s", &table_choice);
+    display_table_free(endor_table_data, tatooine_table_data, naboo_table_data, table_choice);
+    printf("Table %c is free at these times (represented by a '-')\n", table_choice);
+
+    printf("What day would you like to book? (first 3 letters, lower case): ");
+    scanf("%s", &day);
+    printf("And at what time?: ");
+    scanf("%d", &time);
+
+
+    table_booked = check_free_spot(day, time, table_choice, endor_table_data, tatooine_table_data, naboo_table_data);
+
+    return table_booked;
+
 }
 
+int check_free_spot(char day[3], int time, char table_choice, char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7]) {
+    int table_booked;
+    if (table_choice == 'E') {
+        if (strcmp(day, "mon") == 0) {
+            if (time == 7) {
+                if (endor_table_data[0][0] == '-') {
+                    table_booked = 1;
+                    endor_table_data[0][0] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (endor_table_data[1][0] == '-') {
+                    table_booked = 1;
+                    endor_table_data[1][0] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "tue") == 0) {
+            if (time == 7) {
+                if (endor_table_data[0][1] == '-') {
+                    table_booked = 1;
+                    endor_table_data[0][1] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (endor_table_data[1][1] == '-') {
+                    table_booked = 1;
+                    endor_table_data[1][1] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "wed") == 0) {
+            if (time == 7) {
+                if (endor_table_data[0][2] == '-') {
+                    table_booked = 1;
+                    endor_table_data[0][2] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (endor_table_data[1][2] == '-') {
+                    table_booked = 1;
+                    endor_table_data[1][2] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "thu") == 0) {
+            if (time == 7) {
+                if (endor_table_data[0][3] == '-') {
+                    table_booked = 1;
+                    endor_table_data[0][3] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (endor_table_data[1][3] == '-') {
+                    table_booked = 1;
+                    endor_table_data[1][3] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "fri") == 0) {
+            if (time == 7) {
+                if (endor_table_data[0][4] == '-') {
+                    table_booked = 1;
+                    endor_table_data[0][4] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (endor_table_data[1][4] == '-') {
+                    table_booked = 1;
+                    endor_table_data[1][4] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "sat") == 0) {
+            if (time == 7) {
+                if (endor_table_data[0][5] == '-') {
+                    table_booked = 1;
+                    endor_table_data[0][5] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (endor_table_data[1][5] == '-') {
+                    table_booked = 1;
+                    endor_table_data[1][5] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "sun") == 0) {
+            if (time == 7) {
+                if (endor_table_data[0][6] == '-') {
+                    table_booked = 1;
+                    endor_table_data[0][6] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (endor_table_data[1][6] == '-') {
+                    table_booked = 1;
+                    endor_table_data[1][6] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+    }
+
+    if (table_choice == 'T') {
+        if (strcmp(day, "mon") == 0) {
+            if (time == 7) {
+                if (tatooine_table_data[0][0] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[0][0] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (tatooine_table_data[1][0] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[1][0] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "tue") == 0) {
+            if (time == 7) {
+                if (tatooine_table_data[0][1] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[0][1] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (tatooine_table_data[1][1] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[1][1] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "wed") == 0) {
+            if (time == 7) {
+                if (tatooine_table_data[0][2] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[0][2] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (tatooine_table_data[1][2] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[1][2] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "thu") == 0) {
+            if (time == 7) {
+                if (tatooine_table_data[0][3] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[0][3] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (tatooine_table_data[1][3] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[1][3] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "fri") == 0) {
+            if (time == 7) {
+                if (tatooine_table_data[0][4] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[0][4] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (tatooine_table_data[1][4] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[1][4] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "sat") == 0) {
+            if (time == 7) {
+                if (tatooine_table_data[0][5] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[0][5] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (tatooine_table_data[1][5] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[1][5] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "sun") == 0) {
+            if (time == 7) {
+                if (tatooine_table_data[0][6] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[0][6] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (tatooine_table_data[1][6] == '-') {
+                    table_booked = 1;
+                    tatooine_table_data[1][6] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+    }
+
+    if (table_choice == 'N') {
+        if (strcmp(day, "mon") == 0) {
+            if (time == 7) {
+                if (naboo_table_data[0][0] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[0][0] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (naboo_table_data[1][0] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[1][0] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "tue") == 0) {
+            if (time == 7) {
+                if (naboo_table_data[0][1] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[0][1] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (naboo_table_data[1][1] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[1][1] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "wed") == 0) {
+            if (time == 7) {
+                if (naboo_table_data[0][2] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[0][2] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (naboo_table_data[1][2] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[1][2] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "thu") == 0) {
+            if (time == 7) {
+                if (naboo_table_data[0][3] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[0][3] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (naboo_table_data[1][3] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[1][3] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "fri") == 0) {
+            if (time == 7) {
+                if (naboo_table_data[0][4] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[0][4] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (naboo_table_data[1][4] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[1][4] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "sat") == 0) {
+            if (time == 7) {
+                if (naboo_table_data[0][5] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[0][5] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (naboo_table_data[1][5] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[1][5] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+        if (strcmp(day, "sun") == 0) {
+            if (time == 7) {
+                if (naboo_table_data[0][6] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[0][6] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+            else if (time == 9) {
+                if (naboo_table_data[1][6] == '-') {
+                    table_booked = 1;
+                    naboo_table_data[1][6] = 'x';
+                }
+                else {
+                    table_booked = 0;
+                }
+            }
+        }
+    }
+
+
+
+    if (table_booked == 1) {
+        return table_booked;
+    }
+    else {
+        return 0;
+    }
+}
+
+void display_table_free(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7], char table_choice) {
+    int i,j;
+    char days[7][10] = {"Mon","Tue","Wed","Thu","Fri","Sat","Sun"};
+    if (table_choice == 'E') {
+        printf("Days\t");
+        for (i = 0; i<7; i++) {
+            printf("%s ", days[i]);
+        }
+        printf("\n");
+        for (i = 0; i < 2; i++) {
+            if (i == 0) {
+                printf("7PM \t");
+            }
+            else {
+                printf("9PM \t");
+            }
+            for (j = 0; j < 7; j++) {
+                printf("%c \t", endor_table_data[i][j]);
+            }
+            printf("\n");
+        }
+    }
+    else if (table_choice == 'T') {
+        printf("Days\t");
+        for (i = 0; i<7; i++) {
+            printf("%s ", days[i]);
+        }
+        printf("\n");
+        for (i = 0; i < 2; i++) {
+            if (i == 0) {
+                printf("7PM \t");
+            }
+            else {
+                printf("9PM \t");
+            }
+            for (j = 0; j < 7; j++) {
+                printf("%c \t", tatooine_table_data[i][j]);
+            }
+            printf("\n");
+        }
+    }
+    else if (table_choice == 'N') {
+        printf("Days\t");
+        for (i = 0; i<7; i++) {
+            printf("%s ", days[i]);
+        }
+        printf("\n");
+        for (i = 0; i < 2; i++) {
+            if (i == 0) {
+                printf("7PM \t");
+            }
+            else {
+                printf("9PM \t");
+            }
+            for (j = 0; j < 7; j++) {
+                printf("%c \t", naboo_table_data[i][j]);
+            }
+            printf("\n");
+        }
+    }
+
+
+
+}
 
 void check_in() {
     int children = 0, adults = 0, length = 0, room_number = 0;
