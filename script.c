@@ -234,7 +234,7 @@ int check_free_spot(char day[4], int time, char table_choice, char endor_table_d
 
     if (table_choice == 'E') table = endor_table_data;
     else if (table_choice == 'T') table = tatooine_table_data;
-    else if (table_choice == naboo_table_data) table = naboo_table_data;
+    else if (table_choice == 'N') table = naboo_table_data;
     else return 0;
 
     if (table[row][col] == '-') {
@@ -279,7 +279,8 @@ void display_table_free(char endor_table_data[2][7], char tatooine_table_data[2]
 
 // CHECK IN // 
 void check_in() {
-    int children = 0, adults = 0, length = 0, room_number = 0;
+    int children = 0, adults = 0, length = 0;
+    char room_number[1];
     char first_name[50], surname[50], dob[9], board_type[3];
     char newspaper;
     char booking_id[50], random_str[50];
@@ -291,6 +292,10 @@ void check_in() {
 
     printf("Enter surname: ");
     scanf("%s", surname);
+
+    if (first_name[0] == '\0' || surname[0] == "\0") {
+        printf("Invalid name");
+    }
 
     printf("Enter date of birth (DDMMYYYY or DD/MM/YYYY): ");
     scanf("%s", dob);
@@ -343,8 +348,27 @@ void check_in() {
         }
     } while (total_people > 4);
 
+
+    int valid_board = 0;
+    do {
     printf("Enter board type (FB, HB, BB): ");
     scanf("%s", board_type);
+
+    if (strcmp(board_type, "FB") == 0) {
+        valid_board = 1;
+    }
+    else if (strcmp(board_type, "HB") == 0) {
+        valid_board = 1;
+    }
+    else if (strcmp(board_type, "BB") == 0) {
+        valid_board = 1;
+    }
+    else {
+        printf("Invalid board type. Try Again.\n");
+    }
+    
+    } while (valid_board == 0);
+
 
     printf("Enter length of stay (days): ");
     scanf("%d", &length);
@@ -352,8 +376,27 @@ void check_in() {
     printf("Would you like a daily newspaper? (Y/N): ");
     scanf(" %c", &newspaper);
 
-     printf("There are 6 rooms.\nRooms 1 & 2 = £100\nRoom 3 = £85\nRooms 4 & 5 = £75\nRoom 6 = £50\nEnter the room number:\n");
-    scanf("%d", &room_number);
+    printf("There are 6 rooms.\nRooms 1 & 2 = £100\nRoom 3 = £85\nRooms 4 & 5 = £75\nRoom 6 = £50\nEnter the room number:\n");
+    scanf(" %c", room_number);
+
+
+    int found = 0;
+
+    for (int i = 0; i < 10; i++) {
+        if (g_room_number[i][0] == room_number[0]) {
+            printf("Invalid\n");
+            found = 1;
+            break;
+        }
+
+        else {
+            found = 0;
+        }
+    }
+
+    printf("%d", found);
+
+    
 
     sprintf(random_str, "%d", random_number);
     strcpy(booking_id, surname);
@@ -375,6 +418,70 @@ void check_in() {
     strcpy(g_board_type[check_num], board_type);
     sprintf(g_length_of_stay[check_num], "%d", length);
     sprintf(g_newspaper[check_num], "%c", newspaper);
-    sprintf(g_room_number[check_num], "%d", room_number);
+    sprintf(g_room_number[check_num], "%c", room_number);
     strcpy(g_booking_id[check_num], booking_id);
 }
+
+// CHECK OUT //
+/*int check_out(void) {
+    float total_bill = 0;
+    float total_board = 0;
+    float checkout_boardprice = 0;
+    int dob_checkout = 0;
+
+    
+
+    int dob_checkout = atoi(dob[2]);
+    if (dob_checkout % 10000 > 1960) {
+        total_bill = total_bill + ((booking_data[8] * booking_data[6]) * 0.9);
+    }
+    else {
+        total_bill = total_bill + (booking_data[8] * booking_data[6]);
+    }
+
+
+
+    if (booking_data[5] == "FB"){
+        checkout_boardprice = 20;
+    }
+    else if (booking_data[5] == "HB") {
+        checkout_boardprice = 15;
+    }
+    else if (booking_data[5] == "BB") {
+        checkout_boardprice = 5;
+    }
+
+
+
+    if (booking_data[3] > 0) {
+        total_board = booking_data[3] * (0.5 * checkout_boardprice);
+    }
+    total_board = total_board + (booking_data[4] * checkout_boardprice);
+    total_bill = total_bill + total_board;
+
+
+
+    if (booking_data[7] == "Y") {
+        total_bill = total_bill + 5.5;
+    }
+
+    printf("\nThanks for checking out. Your booking ID is %s and your name is %s %s.\n", booking_data[9], booking_data[0], booking_data[1]);
+    printf("\nYour room total was %f. Your board total was %f.\n", booking_data[8] * booking_data[6], total_board);
+
+    if (dob_checkout % 10000 > 1960) {
+        printf("Because the main user is over 65, you receive a discount on the room.\n");
+    }
+
+    if (booking_data[3] > 0) {
+        printf("\nBecause members of your party are 16 or under, they receive a discount on the board meals.\n");
+    }
+
+    if (booking_data[7] == "Y") {
+        printf("\nThere is also a £5.50 fee for the daily newspapers.\n");
+    }
+    printf("\nYour total bill is %f.\n", total_bill);
+
+    return 0;
+}
+
+*/
