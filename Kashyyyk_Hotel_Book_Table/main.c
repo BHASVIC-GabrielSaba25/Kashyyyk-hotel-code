@@ -483,6 +483,8 @@ int check_out(char g_booking_id[10][50], char g_dobs[10][50], char g_board_type[
     printf("\nYour total bill is %f.\n", total_bill);
 
 
+    clear_user(ID_found, g_firstnames, g_surnames, g_dobs, g_children, g_adults, g_board_type, g_length_of_stay, g_newspaper, g_room_number, g_booking_id, g_tables_booked);
+
 
     return 0;
 }
