@@ -30,12 +30,15 @@ char naboo_table_data[2][7] = {
     '-','-','-','-','-','-','-'
 };
 
+int check_out(char g_booking_id[10][50], char g_dobs[10][50], char g_board_type[10][50], char g_children[10][50], char g_newspaper[10][50], char g_room_number[10][1], char g_firstnames[10][50], char g_surnames[10][50]);
 int table_booking(char g_children[10][50],char g_adults[10][50],char g_board_type[10][50],char g_booking_id[10][50], int g_tables_booked[10]);
 int booking_valid(char g_board_type[10][50],char g_booking_id[10][50]);
 int choose_and_book_table(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7]);
 void display_table_free(char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7], char table_choice);
 int check_free_spot(char day[4], int time, char table_choice, char endor_table_data[2][7], char tatooine_table_data[2][7], char naboo_table_data[2][7]);
 void check_in();
+void clear_user(int ID_found, char g_firstnames[10][50], char g_surnames[10][50], char g_dobs[10][50], char g_children[10][50], char g_adults[10][50], char g_board_type[10][50], char g_length_of_stay[10][50], char g_newspaper[10][50], char g_room_number[10][50], char g_booking_id[10][50], int g_tables_booked[10]);
+
 
 // MAIN //
 int main(void) {
@@ -66,7 +69,7 @@ int main(void) {
                 break;
 
             case 3:
-                //check_out();
+                check_out(g_booking_id, g_dobs, g_board_type, g_children, g_newspaper, g_room_number, g_firstnames, g_surnames);
                 break;
 
             case 4:
@@ -422,66 +425,122 @@ void check_in() {
     strcpy(g_booking_id[check_num], booking_id);
 }
 
-// CHECK OUT //
-/*int check_out(void) {
+int check_out(char g_booking_id[10][50], char g_dobs[10][50], char g_board_type[10][50], char g_children[10][50], char g_newspaper[10][50], char g_room_number[10][1], char g_firstnames[10][50], char g_surnames[10][50]) {
     float total_bill = 0;
     float total_board = 0;
     float checkout_boardprice = 0;
     int dob_checkout = 0;
+    int ID_found = 0;
+    int room_price;
+    int total_room;
+    char booking_ID[100];
+    int valid = 0;
+    int repeat = 0;
 
-    
 
-    int dob_checkout = atoi(dob[2]);
+    printf("Please enter your booking ID: ");
+    scanf("%s", booking_ID);
+
+    while (valid == 0) {
+        if (strcmp(g_booking_id[repeat], booking_ID) == 0) {
+            ID_found = repeat;
+            valid = 1;
+        }
+        else {
+            repeat++;
+            if (repeat >= 10) {
+                valid = 2;
+            }
+        }
+    }
+
+    if (strcmp(g_room_number[ID_found],"1") == 0 || strcmp(g_room_number[ID_found],"2") == 0) {
+        room_price = 100;
+    }
+    else if (strcmp(g_room_number[ID_found],"3") == 0) {
+        room_price = 85;
+    }
+    else if (strcmp(g_room_number[ID_found],"4") == 0 || strcmp(g_room_number[ID_found],"5") == 0) {
+        room_price = 75;
+    }
+    else if (strcmp(g_room_number[ID_found],"6") == 0) {
+        room_price = 50;
+    }
+
+    total_room = room_price * atoi(g_length_of_stay[ID_found]);
+
+
+    dob_checkout = atoi(g_dobs[ID_found]);
     if (dob_checkout % 10000 > 1960) {
-        total_bill = total_bill + ((booking_data[8] * booking_data[6]) * 0.9);
+        total_bill = total_bill + (total_room * 0.9);
     }
     else {
-        total_bill = total_bill + (booking_data[8] * booking_data[6]);
+        total_bill = total_bill + total_room;
     }
+    // if over 65 get discount
 
 
 
-    if (booking_data[5] == "FB"){
+    if (strcmp(g_board_type[ID_found], "FB") == 0){
         checkout_boardprice = 20;
     }
-    else if (booking_data[5] == "HB") {
+    else if (strcmp(g_board_type[ID_found], "HB") == 0) {
         checkout_boardprice = 15;
     }
-    else if (booking_data[5] == "BB") {
+    else if (strcmp(g_board_type[ID_found], "BB") == 0) {
         checkout_boardprice = 5;
     }
+    // board type
 
 
 
-    if (booking_data[3] > 0) {
-        total_board = booking_data[3] * (0.5 * checkout_boardprice);
+    if (atoi(g_children[ID_found]) > 0) {
+        total_board = atoi(g_children[ID_found]) * (0.5 * checkout_boardprice);
     }
-    total_board = total_board + (booking_data[4] * checkout_boardprice);
+    total_board = total_board + (atoi(g_children[ID_found]) * checkout_boardprice);
     total_bill = total_bill + total_board;
+    // if have children discount on board price
 
 
 
-    if (booking_data[7] == "Y") {
+    if (strcmp(g_newspaper[ID_found], "Y") == 0) {
         total_bill = total_bill + 5.5;
     }
+    //newspaper
 
-    printf("\nThanks for checking out. Your booking ID is %s and your name is %s %s.\n", booking_data[9], booking_data[0], booking_data[1]);
-    printf("\nYour room total was %f. Your board total was %f.\n", booking_data[8] * booking_data[6], total_board);
+    printf("\nThanks for checking out %s %s.\n", g_firstnames[ID_found], g_surnames[ID_found]);
+    printf("\nYour room total was %d. Your board total was %f.\n", total_room, total_board);
 
     if (dob_checkout % 10000 > 1960) {
         printf("Because the main user is over 65, you receive a discount on the room.\n");
     }
 
-    if (booking_data[3] > 0) {
+    if (g_children[ID_found] > 0) {
         printf("\nBecause members of your party are 16 or under, they receive a discount on the board meals.\n");
     }
 
-    if (booking_data[7] == "Y") {
+    if (strcmp(g_newspaper[ID_found], "Y") == 0) {
         printf("\nThere is also a £5.50 fee for the daily newspapers.\n");
     }
     printf("\nYour total bill is %f.\n", total_bill);
 
+
+    clear_user(ID_found, g_firstnames, g_surnames, g_dobs, g_children, g_adults, g_board_type, g_length_of_stay, g_newspaper, g_room_number, g_booking_id, g_tables_booked);
+
+
     return 0;
 }
 
-*/
+void clear_user(int ID_found, char g_firstnames[10][50], char g_surnames[10][50], char g_dobs[10][50], char g_children[10][50], char g_adults[10][50], char g_board_type[10][50], char g_length_of_stay[10][50], char g_newspaper[10][50], char g_room_number[10][50], char g_booking_id[10][50], int g_tables_booked[10]) {
+    strcpy(g_firstnames[ID_found], '\0');
+    strcpy(g_surnames[ID_found], '\0');
+    strcpy(g_dobs[ID_found], '\0');
+    strcpy(g_children[ID_found], '\0');
+    strcpy(g_adults[ID_found], '\0');
+    strcpy(g_board_type[ID_found], '\0');
+    strcpy(g_length_of_stay[ID_found], '\0');
+    strcpy(g_newspaper[ID_found], '\0');
+    strcpy(g_room_number[ID_found], '\0');
+    strcpy(g_booking_id[ID_found], '\0');
+    g_tables_booked[ID_found] = 0;
+}
